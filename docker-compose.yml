@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+
+  bot:
+    image: node:16.15.0-alpine3.15
+    working_dir: /bot
+    command: sh
+    volumes:
+      - ./bot/:/bot
