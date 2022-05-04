@@ -4,8 +4,14 @@ interface DiceType {
 }
 
 class Dice {
-  public roll(type: DiceType): number {
-    return Math.floor(Math.random() * type.sides) + 1;
+  readonly type: DiceType;
+
+  constructor(type: DiceType) {
+    this.type = type;
+  }
+
+  public roll(): number {
+    return Math.floor(Math.random() * this.type.sides) + 1;
   }
 }
 
@@ -16,7 +22,7 @@ const DiceTypes: Array<DiceType> = [
   { name: 'd10', sides: 10 },
   { name: 'd12', sides: 12 },
   { name: 'd20', sides: 20 },
-]
+];
 
 export {
   Dice,
