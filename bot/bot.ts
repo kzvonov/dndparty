@@ -1,9 +1,9 @@
 import { Context, Telegraf } from 'telegraf'
 import dotenv from 'dotenv'
 import { Dice, DiceType, DiceTypes } from './src/Dice'
-import Command from './src/Command'
+import { Command, CommandParser } from './src/Command'
 
-dotenv.config();
+dotenv.config()
 
 interface AppContext extends Context {
   myProp?: number
@@ -14,25 +14,39 @@ const botToken = String(process.env.BOT_TOKEN)
 const bot = new Telegraf<AppContext>(botToken)
 
 bot.use((ctx, next) => {
-  ctx.myProp = ctx.chat?.id;
+  ctx.myProp = ctx.chat?.id
   return next()
 })
 
-DiceTypes.forEach((diceType: DiceType) => {
+Object.values(DiceTypes).forEach((diceType: DiceType) => {
   bot.command(diceType.name, (ctx) => {
-    const dice = new Dice(diceType);
-    const result = dice.roll();
-    ctx.reply(`${ctx.from.first_name} rolled: ${result}/${diceType.sides}`);
+    const dice = new Dice(diceType)
+    const result = dice.roll()
+    ctx.reply(`${ctx.from.first_name} rolled: ${result}/${diceType.sides}`)
   })
 })
 
 bot.command('roll', (ctx) => {
-  console.log(ctx.update.message.from)
-  console.log(ctx.update.message.chat)
-  console.log(ctx.update.message.entities)
-  Command.parse(ctx.update.message.text)
-  // const result = dice.roll(diceType)
-  // ctx.reply(`${ctx.from.first_name} rolled: ${result}/${diceType.sides}`)
+  const parser = new CommandParser();
+  const command = parser.execute(ctx.update.message.text)
+
+  if (command.args.length < 0) {
+    ctx.reply(`${ctx.from.first_name} please specify the number after /roll command`)
+    return
+  }
+
+  const sides: number = +command.args[0]
+  const diceType: DiceType|null = DiceTypes[sides]
+
+  if (diceType == null) {
+
+    ctx.reply(`No such dice, sorry\n${ctx.from.first_name}, try one of these: ${Object.keys(DiceTypes)}`)
+    return
+  }
+
+  const dice = new Dice(diceType)
+  const result = dice.roll()
+  ctx.reply(`${ctx.from.first_name} rolled: ${result}/${diceType.sides}`)
 })
 
 bot.launch()

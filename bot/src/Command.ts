@@ -11,19 +11,13 @@ class CommandParser {
     'gmi'
   )
 
-  readonly rawText: string
-
-  constructor(rawText: string) {
-    this.rawText = rawText.toLocaleLowerCase().trim()
-  }
-
-  public execute(): Command {
+  public execute(rawText: string): Command {
     
-    if (this.rawText[0] != '/') {
+    if (rawText[0] != '/') {
       throw Error('not a command')
     }
 
-    const data: string[] = this.rawText
+    const data: string[] = rawText
       .slice(1)
       .replace(/[^a-zA-Z0-9\s]+/g, '')
       .trim()
